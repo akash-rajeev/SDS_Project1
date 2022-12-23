@@ -1,0 +1,133 @@
+---
+title: "Project 1"
+author: "Akash Rajeev"
+date: "2022-09-20"
+output: html_document
+---
+```{r, echo = FALSE}
+#Setting up the working directory and reading in the "Project1_earthquakes.csv" file as earthquakes.csv. Also setting up ggplot
+setwd("/Users/akashrajeev/downloads")
+earthquakes = read.csv("Project1_earthquakes.csv") 
+library(ggplot2)
+```
+
+# **Introduction** 
+
+The dataset that I have chosen for this project are the records from global earthquakes in 2016 that have been collected by the United States Geological Survey. This dataset includes various important details related to the earthquakes, including the earthquake's magnitude, depth, latitude, longitude, the date the event occured, and other important details. This data was collected through a network of worldwide seismic and earthquake monitoring systems.
+
+I plan to use **Earthquake Magnitude** for the outcome variable. This is a logarithmic measure of the size of the earthquake at its source, and an earthquake has only one, independent of where the measurement is made. It can be represented as a decimal number, ranging from 0 (least magnitude) to 8 (extreme magnitude)(1). The USGS currently uses the Moment Magnitude Scale to measure magnitude, which is based on the moment release of an earthquake(2). This data is derived using a seismograph network and modelling systems in monitoring stations around the world(1). My predictor variables are **Earthquake Latitude**, a measure of the latitude of the earthquake's location, **Earthquake Longitude**, a measure of the longitude of the earthquake's location, and **Earthquake Depth**, the depth of the earthquake in kilometers.
+
+
+![Seismic Station(3)](/Users/akashrajeev/downloads/seismicstation.png)  
+
+
+# **Question 2: Outcome Variable**
+```{r, echo = FALSE}
+#This is the ggplot code for creating a histogram betwen the magnitude of an earthquake and its distribution.
+ggplot(data = earthquakes) + geom_histogram(mapping = aes(x = impact.magnitude), bins = 40, color = "navy", fill = "white", na.rm = TRUE) + xlim(0, 8)+ xlab("Magnitude of Earthquake") + ylab("Number of earthquakes") + ggtitle(" Distribution of Earthquake Magnitude") + theme_bw()
+```
+
+```{r, echo = FALSE, results = "hide"}
+# Descriptive statistics for the earthquake magnitude
+mean(earthquakes$impact.magnitude) # 1.512941
+median(earthquakes$impact.magnitude)# 1.2
+sd(earthquakes$impact.magnitude) # 1.152668
+fivenum(earthquakes$impact.magnitude) # 0.01, 0.74, 1.20, 1.88. 7.70
+fivenumdata = fivenum(earthquakes$impact.magnitude) 
+range(earthquakes$impact.magnitude)# 0.01, 7.70
+```
+
+
+
+I think that the mean earthquake magnitude from this data set is `r mean(earthquakes$impact.magnitude)`, and the median is `r median(earthquakes$impact.magnitude)`. These values suggest that the average earthquake has a relatively low magnitude. The standard deviation for the magnitudes was `r sd(earthquakes$impact.magnitude) `, and the lower and higher bounds of the data was `r fivenumdata[2]` and `r fivenumdata[3]` respectively, which suggests that most earthquake magnitudes were less than 0.74 on the scale. the highest magnitude recorded was `r fivenumdata [5]`, and the lowest magnitude recorded was `r fivenumdata [1]`
+
+
+# **Question 3: Predictor Variables**
+
+## **Predictor Variable 1: Earthquake Latitude**
+```{r, echo = FALSE, results = "hide", message = FALSE}
+#ggplot code to create the scatterplot mapping earthquake latitude to earthquake magnitude
+ggplot(data = earthquakes) + geom_point(mapping = aes( x = location.latitude, y = impact.magnitude), color = "salmon", pch =20, alpha = 0.5) +xlim(-70, 90) + xlab("Latitude of the Earthquake (°South to North, negative values are South)") + ylab("Magnitude of the Earthquake") + ggtitle("Latitude of the Earthquake location vs Earthquake Magnitude") + scale_x_continuous(breaks = c(-70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90), label = c("-70", "-60", "-50", "-40", "-30", "-20", "-10", "0/Equator", "10", "20", "30", "40", "50", "60", "70", "80", "90")) 
+
+#Finding the correlation between earthquake mangitude and earthquake latitude.
+cor(earthquakes$impact.magnitude, earthquakes$location.latitude) # -0.4655494
+```
+
+This scatterplot displays the distribution of the Earthquake Magnitude as related to the Earthquake's latitude. The correlation of these two variables is `r cor(earthquakes$impact.magnitude, earthquakes$location.latitude)`, which indicates a decent negative correlation between the latitude and magnitude. From this plot, we can see that a majority of earthquakes between magnitudes 0-4.0 fall between 15°N to 70°N. Specifically, we can see "clumps" where a large amount of earthquakes occur from 15-20°N, 30-40°N, 45-50°N, and 50-70°N. Interestingly, there is a distinct lack of earthquakes of magnitudes 0-.40 from 20-30°N.
+
+When I looked at Google Earth(4) to determine where these latitudes  were, it seems they are all in the Northern Hemisphere. 15-20°N covers much of Central America, Northern/Central Africa, and Southeast Asia. The rest of the "clumps", from 30-70°N, covers above the Tropic of Cancer to above the Arctic Circle, including most of North America, Northern Africa, Europe, and Mainland Asia, including Japan, China, and Russia.
+
+However, as the magnitudes increase, we can see that earthquakes with magnitudes from 4.0-6.0 appear to have a much more even latitude spread and occur in the Southern Hemisphere as well, ranging in similar amounts from around 60 degrees south to 60 degrees north. Even these seem to form subtle clumps, like one forming at ~55°S, 30°-15°S, 10°S-0°, 20°N, and 35-50°N.  It also seems like earthquakes with very high magnitudes (7.0-8.0) don't seem to appear more primarily in one region of latitude. 
+
+When looking at Google Earth(4) again, it seems like  55°S lies above the Antarctic Circle, while 30°S-0° covers much of South America(including Brazil, Peru, and Bolivia). 20°N is just south of the Tropic of Cancer, crossing Mexico, parts of the Caribbean, the Sahara, the Arabian Peninsula, Northern India, and Southeast Asia, including Myanmar, Thailand, Laos, and Vietnam. It also crosses Hawaii. 
+
+
+
+## **Predictor Variable 2: Earthquake Longitude**
+```{r, echo = FALSE, results = "hide", message = FALSE}
+
+#ggplot code mapping a scatterplto between earthquake longitude and its magnitude.
+
+ggplot(data = earthquakes) + geom_point(mapping = aes(x=location.longitude, y = impact.magnitude), color = "black", pch = 21, alpha = 1, fill = "light blue ") + xlim(-180, 180) + scale_x_continuous(breaks = c(-180, -160, -140, -120, -100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100, 120, 140, 160, 180), label = c("-180", "-160", "-140", "-120", "-100", "-80", "-60", "-40", "-20", "0/P.M.", "20", "40", "60", "80", "100", "120", "140", "160", "180")) + xlab("Longitude where Earthquake Occured (° West to East, negative values are West)") + ylab("Magnitude of Earthquake") + ggtitle("Longitude of the Earthquake Location vs Earthquake Magnitude")
+
+# finding correlation between earthquake magnitude and longitude.
+cor(earthquakes$impact.magnitude, earthquakes$location.longitude) #0.5926433
+
+```
+
+The correlation between the magnitude and the longitudinal location of the earthquake is `r  cor(earthquakes$impact.magnitude, earthquakes$location.longitude)`, which indicates a decently strong positive correlation between the farther east the earthquake occured and the magnitude of the earthquake. 
+
+When looking at the plot, we can see that a vast majority of the earthquakes with magnitudes from 0-4.0 are concentrated between 180°W and 60°W, with two big "clumps" forming from 160-140°W and 125-115°W. There are also smaller "clumps" at ~100°W, 60-70°W, and a decent amount of magnitude 0-4.0 earthquakes at 180°E, which seems kind of like an outlier. 
+
+When I looked at Google Earth(4) for these Longitudes, it seems that 160-140°W covers the East Pacific, most of Alaska and Hawaii. 125-115°W covers much of Western North America, including California, Arizona, Washington, Oregon, Alberta, British Columbia, Yukon and the Northern Territories.It turns out that 180°E and 180°W are the same thing, the Antimeridian, and stretches over the central-ish Pacific, including over many Pacific nations like Tuvalu and Fiji, and East of New Zealand.
+
+The larger magnitude earthquakes (4.0-6.0) are more evenly distributed across the globe, but they do seem to concentrate in a few longitudes, like from roughly 180-175°W, 100-60°W, 40°-20°W, and a large concentration from 60°E to 180°E, with notable "clumps" forming from 120-130°E, and 135-170°E.  Like with latitude, the earthquakes with magnitudes 7.0-8.0 don't seem to congregate in one spot, and seem to be spread out throughout the globe. 
+
+When I looked at Google Earth(4) again for thes longitudes, the larger magnitude Earthquakes seemed to concentrate in 120-130°E, which covers Eastern China, the Korean Peninsula, The Phillipines, much of Indonesia, Malaysia, and Papua, and Western Australia. Another "clump" for higher magnitude earthquakes was 135-170°E, which seems to cover most of Japan, Papua New Guinea, Eastern Australia, and a piece of the Pacific Ocean east of Asia.
+
+
+## **Predictor Variable 3: Earthquake Depth**
+
+```{r, echo = FALSE, results = "hide", message = FALSE}
+#ggplot code creating scatterplot mapping earthquake depth and magnitude.
+ggplot(data= earthquakes) + geom_point(mapping = aes(x = location.depth, y = impact.magnitude), pch = 21, fill = "light green", color = "black", alpha = 0.5) + xlab("Earthquake Depth (km)") + ylab("Magnitude of Earthquake") + ggtitle("Depth of Earthquake against the Magnitude of the Earthquake")
+
+#Finding the correlation between earthquake impact magnitude and its depth.
+cor(earthquakes$impact.magnitude, earthquakes$location.depth)
+
+```
+
+
+The correlation between the Depth of the Earthquake and the Earthquake's magnitude is `r cor(earthquakes$impact.magnitude, earthquakes$location.depth)`. This suggests that the magnitude and depth are somewhat positively correlated. We can also see that from the plot, most earthquakes with magnitudes 0-3.0 have a depth of around 0 to 50 km deep. However, it can also be noted that, from the plot, earthquakes with magnitudes 0-1.0 sit at a depth of around 0-20 km. It can also be noted that earthquakes with magnitudes 1.0-3.0 seem to have a much greater variety of depths, with many ranging from 0-200 km deep. Earthquakes with magnitudes 4.0-5.0 seem to have a much greater variety of depths, ranging from 0 to over 600 km deep. Lastly, earthquakes with magnitudes 6.0-8.0 seem to occur in a wide range of depths, from around 10 km deep to 520 km deep. From this graph it seems like, generally, earthquakes with lower magnitudes (0-3.0) appear to have shallower depths, while earthquakes with higher magnitudes (4.0-8.0) can have a greater range of depths, with many earthquakes occuring at 500-600 km deep.
+
+
+
+# **Question 4: Conclusion **
+
+I found that Earthquake latitude and magnitude are slightly negatively correlated, and that most Earthquakes with lower magnitudes(0-4.0) occur in the Northern Hemisphere, with a notable amount occuring above the Tropic of Cancer to above the Arctic Circle. Earthquakes with higher magnitudes (4.0-6.0) appeared in both hemispheres, especially occuring in latitudes crossing South America, Southeast Asia, Mexico, the Carribean, the Arabian Peninsula and below the Tropic of Cancer.For Earthquake longitude and magnitude, I found that they were decently positvely correlated, and that most earthquakes with lower magnitudes occured in Western North America and the Pacific that bordered it, and many earthquakes with higher magnitudes also occured in Eastern and Southeastern Asia, and the Western parts of the pacific. For both latitude and longitude, I found that earthquakes with higher magnitudes didn't seem to occur in one region extensively.
+
+When I tried to match up the "clumps" of earthquakes in the latitudes and longitudes, I found that most earthquakes in the dataset lined up along the ocean and coast of East and Southeast Asia, as well as the ocean and coast of Western North America. This kind of aligns with the Ring of Fire, which is a path along the Pacific that has lots of moving tectonic plates and seismic activity, causing an abundance of Earthquakes and Volcanoes (5).
+
+I found that the Earthquake depth and it's magnitude were somewhat positively correlated, and that earthquakes with magnitudes 0-4.0 appeared to occur at "shallower" depths, up to 200 km, whereas Earthquakes with higher magnitudes could occur at a greater range of depths, to greater than 600km deep.
+
+Areas for future research could be in examining whether earthquakes will have different magnitudes or impacts in areas with different geological backgrounds, like if the rock composition or other geological factors might impact an Earthquake's magnitude.
+
+
+# **Sources**
+1) United States Geological Survey - Earthquake Hazards, https://www.usgs.gov/programs/earthquake-hazards/earthquake-magnitude-energy-release-and-shaking-intensity
+2) Michigan Tech University UPSeis, https://www.mtu.edu/geo/community/seismology/learn/earthquake-measure/
+3) National Weather Service - JetStream, https://www.weather.gov/jetstream/tsu_detect
+4) Google Earth, https://earth.google.com/web/
+5) National Geographic Society Resource Library, https://education.nationalgeographic.org/resource/ring-fire
+
+6)CORGIS Earthquakes Dataset, https://think.cs.vt.edu/corgis/csv/wind_turbines/
+
+
+
+
+
+
+
+
+
+
